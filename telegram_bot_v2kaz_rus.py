@@ -180,7 +180,7 @@ async def handle_any_message(message: Message):
 def format_response(data):
     results = []
     for item in data['result'][:3]:
-        pharmacy_info = f"<b>Препарат {item['products'][0]['name']}</b>\n<b>Адрес:</b>\nгород {item['source']['city']},\n{item['source']['address']}\n<b>Cтоимость препарата</b> {item['products'][0]['base_price']} тенге\n"
+        pharmacy_info = f"Препарат {item['products'][0]['name']}\nАдрес:\nгород {item['source']['city']},\n{item['source']['address']}\nCтоимость препарата {item['products'][0]['base_price']} тенге\n"
         results.append(pharmacy_info)
     return "\n".join(results)
 
