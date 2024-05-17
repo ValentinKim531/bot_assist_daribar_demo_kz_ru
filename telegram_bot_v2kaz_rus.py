@@ -19,28 +19,29 @@ load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 YANDEX_FOLDER_ID = os.getenv("YANDEX_FOLDER_ID")
 YANDEX_OAUTH_TOKEN = os.getenv("YANDEX_OAUTH_TOKEN")
-YANDEX_IAM_TOKEN = os.getenv("YANDEX_IAM_TOKEN")
+# YANDEX_IAM_TOKEN = os.getenv("YANDEX_IAM_TOKEN")
 
 bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 dp = Dispatcher()
 router = Router()
 
-# YANDEX_IAM_TOKEN = None
+YANDEX_IAM_TOKEN = None
 
-# def get_iam_token():
-#     global YANDEX_IAM_TOKEN
-#     url = "https://iam.api.cloud.yandex.net/iam/v1/tokens"
-#     payload = {"yandexPassportOauthToken": YANDEX_OAUTH_TOKEN}
-#     response = requests.post(url, json=payload)
-#     response.raise_for_status()
-#     YANDEX_IAM_TOKEN = response.json()["iamToken"]
-#     logger.info(f"Received new IAM token: {YANDEX_IAM_TOKEN}")
 
-# async def refresh_iam_token():
-#     while True:
-#         await asyncio.sleep(6 * 3600)
-#         get_iam_token()
-#         logger.info("IAM token refreshed")
+def get_iam_token():
+    global YANDEX_IAM_TOKEN
+    url = "https://iam.api.cloud.yandex.net/iam/v1/tokens"
+    payload = {"yandexPassportOauthToken": YANDEX_OAUTH_TOKEN}
+    response = requests.post(url, json=payload)
+    response.raise_for_status()
+    YANDEX_IAM_TOKEN = response.json()["iamToken"]
+    logger.info(f"Received new IAM token: {YANDEX_IAM_TOKEN}")
+
+async def refresh_iam_token():
+    while True:
+        await asyncio.sleep(6 * 3600)
+        get_iam_token()
+        logger.info("IAM token refreshed")
 
 def fetch_medicine_info(sku):
     """Отправка запроса к API для получения данных о лекарстве."""
@@ -81,9 +82,9 @@ async def set_language(callback_query: CallbackQuery):
     language = callback_query.data.split('_')[-1]
     user_languages[user_id] = language
     if language == 'ru':
-        await callback_query.message.answer("Здравствуйте! Отправьте мне, пожалуйста, голосовое сообщение с названием одного препарата (допустимые к демонстрации препараты: Ибупрофен, Анальгин, Аспирин, Кызыл май).\nТакже посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/6pJ04x-M-XQ")
+        await callback_query.message.answer("Здравствуйте! Отправьте мне, пожалуйста, голосовое сообщение с названием одного препарата (допустимые к демонстрации препараты: Ибупрофен, Анальгин, Аспирин, Кызыл май).\nТакже посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share")
     elif language == 'kk':
-        await callback_query.message.answer('Сәлеметсіз бе! Маған бір дәрі-дәрмектің атауы бар дауыстық хабарлама жіберіңіз (демонстрацияға рұқсат етілген дәрілік нұсқалар: ибупрофен, анальгин, аспирин, қызыл май).\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/6pJ04x-M-XQ')
+        await callback_query.message.answer('Сәлеметсіз бе! Маған бір дәрі-дәрмектің атауы бар дауыстық хабарлама жіберіңіз (демонстрацияға рұқсат етілген дәрілік нұсқалар: ибупрофен, анальгин, аспирин, қызыл май).\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share')
     await callback_query.answer()
 
 
@@ -151,19 +152,19 @@ async def handle_voice_message(message: types.Message):
         else:
             if user_language == 'kk':
                 await message.answer(
-                    text='Демонстрацияның бір бөлігі ретінде келесі қолайлы дәрі атауларының бірін қамтитын сөйлемді айтыңыз: ибупрофен, аспирин, анальгин, қызыл май.\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/6pJ04x-M-XQ')
+                    text='Демонстрацияның бір бөлігі ретінде келесі қолайлы дәрі атауларының бірін қамтитын сөйлемді айтыңыз: ибупрофен, аспирин, анальгин, қызыл май.\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share')
             else:
                 await message.answer(
-                    text='В рамках демонстрации произнесите предложение, содержащее одно из следующих подходящих названий лекарств: ибупрофен, аспирин, анальгин, кызыл май.\nВы также можете посмотреть демонстрационное видео по этой ссылке:\nhttps://youtube.com/shorts/6pJ04x-M-XQ')
+                    text='В рамках демонстрации произнесите предложение, содержащее одно из следующих подходящих названий лекарств: ибупрофен, аспирин, анальгин, кызыл май.\nВы также можете посмотреть демонстрационное видео по этой ссылке:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share')
 
     except Exception as e:
         logger.error(f"Failed to send voice: {e}")
         if user_language == 'kk':
             await message.answer(
-                text='Техникалық себептерге байланысты сұрау өңделмеді.\nАлайда демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/6pJ04x-M-XQ')
+                text='Техникалық себептерге байланысты сұрау өңделмеді.\nАлайда демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share')
         else:
             await message.answer(
-                text='Запрос не был обработан по техническим причинам.\nОднако посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/6pJ04x-M-XQ')
+                text='Запрос не был обработан по техническим причинам.\nОднако посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share')
 
 
 @router.message()
@@ -171,10 +172,10 @@ async def handle_any_message(message: Message):
     user_id = message.from_user.id
     user_language = user_languages.get(user_id, 'ru')
     if user_language == 'kk':
-        await message.answer(text="Маған бір дәрі-дәрмектің атауы бар дауыстық хабарлама жіберіңіз (демонстрацияға рұқсат етілген дәрілік нұсқалар: ибупрофен, анальгин, аспирин, қызыл май).\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/6pJ04x-M-XQ")
+        await message.answer(text="Маған бір дәрі-дәрмектің атауы бар дауыстық хабарлама жіберіңіз (демонстрацияға рұқсат етілген дәрілік нұсқалар: ибупрофен, анальгин, аспирин, қызыл май).\nСонымен қатар демонстрациялық бейнені мына сілтемеден көре аласыз:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share")
     else:
         await message.answer(
-            text="Отправьте мне, пожалуйста, голосовое сообщение с названием одного препарата (допустимые к демонстрации препараты: Ибупрофен, Анальгин, Аспирин, Кызыл май).\nТакже посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/6pJ04x-M-XQ")
+            text="Отправьте мне, пожалуйста, голосовое сообщение с названием одного препарата (допустимые к демонстрации препараты: Ибупрофен, Анальгин, Аспирин, Кызыл май).\nТакже посмотреть демонстрационное видео можно по этой ссылке:\nhttps://youtube.com/shorts/CLDUrzblecI?feature=share")
 
 
 def format_response(data):
@@ -220,7 +221,7 @@ def translate_text(text, source_lang='ru', target_lang='kk'):
 
 
 def recognize_speech(audio_content):
-    # global YANDEX_IAM_TOKEN
+    global YANDEX_IAM_TOKEN
     url = f"https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?folderId={YANDEX_FOLDER_ID}&lang=ru-RU"
     headers = {"Authorization": f"Bearer {YANDEX_IAM_TOKEN}"}
 
@@ -277,9 +278,9 @@ dp.include_router(router)
 
 
 async def main():
-    # get_iam_token()
-    # task = asyncio.create_task(refresh_iam_token())  # Запускаем задачу обновления токена
-    # _ = task
+    get_iam_token()
+    task = asyncio.create_task(refresh_iam_token())
+    _ = task
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, skip_updates=True)
 

@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import logging
 
-# from telegram_bot_v2kaz_rus import get_iam_token
+from telegram_bot_v2kaz_rus import get_iam_token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 YANDEX_FOLDER_ID = os.getenv("YANDEX_FOLDER_ID")
 YANDEX_OAUTH_TOKEN = os.getenv("YANDEX_OAUTH_TOKEN")
-# YANDEX_IAM_TOKEN = None
-YANDEX_IAM_TOKEN = os.getenv("YANDEX_IAM_TOKEN")
+YANDEX_IAM_TOKEN = None
+# YANDEX_IAM_TOKEN = os.getenv("YANDEX_IAM_TOKEN")
 
 def recognize_speech(audio_content):
-    # if not YANDEX_IAM_TOKEN:
-    #     get_iam_token()
+    if not YANDEX_IAM_TOKEN:
+        get_iam_token()
     url = f"https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?folderId={YANDEX_FOLDER_ID}&lang=ru-RU"
     headers = {"Authorization": f"Bearer {YANDEX_IAM_TOKEN}"}
 
@@ -34,8 +34,8 @@ def recognize_speech(audio_content):
 
 
 def synthesize_speech(text):
-    # if not YANDEX_IAM_TOKEN:
-    #     get_iam_token()
+    if not YANDEX_IAM_TOKEN:
+        get_iam_token()
     url = 'https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize'
     headers = {'Authorization': f'Bearer {YANDEX_IAM_TOKEN}'}
     data = {
